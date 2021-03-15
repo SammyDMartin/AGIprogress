@@ -98,7 +98,7 @@ def diminishing_returns_function(Intelligence,steep=None):
     else:
         return 0
 
-def slow_function(Intelligence):
+def slow_function(Intelligence,steep=None):
     return 0
 
 def superintelligence_box_function(Intelligence):
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     c = effort = 1 #initial optimisation effort applied to AGI
     #N = 2 #how sudden is the continuous change - higher is higher order polynomial
     I_0 = IniInt = 0.5 #Initial capability of the AI system
-    krange = np.hstack((np.array([0.0,1.0,2.0]),np.array(1e10)))
+    krange = np.hstack((np.array([0.0,2.0]),np.array(1e10)))
     k=1
     d=k #steepness of logistic curve
 
@@ -124,12 +124,20 @@ if __name__ == "__main__":
     infostring = "s={}, c={}, I_AGI = {}, I_0 = {}_".format(scale,effort,AGI,IniInt)
 
     t = np.linspace(0,2*AGI,precision)
-    plt.plot(t,[yud_function(t1) for t1 in t],label='yudkowsky')
-    for k in krange:
-        plt.plot(t,[continuous_function(t1) for t1 in t],label='Continuous, '+str(k))
-    for k in krange:
-        plt.plot(t,[diminishing_returns_function(t1) for t1 in t],label='Dim_R, '+str(k))
-    
+    #plt.plot(t,[yud_function(t1) for t1 in t],label='yudkowsky')
+
+    """
+    k=1.0
+    plt.plot(t,[continuous_function(t1) for t1 in t],label='No Discontinuity, Intelligence Explosion')
+    k=1e10
+    plt.plot(t,[continuous_function(t1) for t1 in t],label='Discontinuity, Intelligence Explosion')
+    k=1.0
+    plt.plot(t,[diminishing_returns_function(t1) for t1 in t],label='No Discontinuity, No Intelligence Explosion')
+    k=1e10
+    plt.plot(t,[diminishing_returns_function(t1) for t1 in t],label='Discontinuity, No Intelligence Explosion')
+    k=1e10
+    plt.plot(t,[slow_function(t1) for t1 in t],label='No Takeoff')
+
     plt.ylim(0,2)
     #for k in krange:
     #    plt.plot(t,[diminishing_returns_function(t1) for t1 in t],label='Dim-R, '+str(k))
@@ -140,24 +148,37 @@ if __name__ == "__main__":
     plt.legend()
     plt.savefig(infostring+"RSI-able.png")
 
-    fig,(axis1,axis2) = plt.subplots(2,sharex=True,figsize=(10,10))
-    plt.xlabel("Time")
-    axis1.set_ylabel("AI Capability I")
-    axis2.set_ylabel("")
+    """
 
-    axis1.plot(np.linspace(0,top,precision),AGI+np.zeros_like(np.linspace(0,top,precision)),'--',label = 'AGI')
-    axis1.set_title(infostring[:-1])
+    fig,(axis1,axis2) = plt.subplots(2,figsize=(10,10))
+    plt.xlabel("Time")
+    axis1.set_ylabel("AI Capability")
+    axis1.set_xlabel("Time")
+
+    axis1.plot(np.linspace(0,top,precision),AGI+np.zeros_like(np.linspace(0,top,precision)),'--',label = 'HLMI')
+    #axis1.set_title(infostring[:-1])
 
     #print('Discontinuous')
     #progress = AIProgress(yud_function,effort,'Discontinuous',top,precision,IniInt)
     #progress.get_results(axis1,axis2)
 
     print('Continuous')
-    for k in krange:
-        progress2 = AIProgress(continuous_function,effort, 'const returns, d=' +str(k),top,precision,IniInt)
-        progress3 = AIProgress(diminishing_returns_function,effort, 'dim returns, d=' +str(k),top,precision,IniInt)
-        progress2.get_results(axis1,axis2)
-        progress3.get_results(axis1,axis2)
+    
+    k=2.0
+    progress2 = AIProgress(continuous_function,effort, 'Intelligence Explosion, no Discontinuity',top,precision,IniInt)
+    progress3 = AIProgress(diminishing_returns_function,effort, 'no Intelligence Explosion, no Discontinuity',top,precision,IniInt)
+    
+    progress2.get_results(axis1,axis2)
+    progress3.get_results(axis1,axis2)
+
+    k=1e10
+    progress4 = AIProgress(continuous_function,effort, 'Intelligence Explosion, Discontinuity',top,precision,IniInt)
+    progress5 = AIProgress(diminishing_returns_function,effort, 'no Intelligence Explosion, Discontinuity',top,precision,IniInt)
+    progress6 = AIProgress(slow_function,effort, 'no takeoff',top,precision,IniInt)
+    
+    progress4.get_results(axis1,axis2)
+    progress5.get_results(axis1,axis2)
+    progress6.get_results(axis1,axis2)
 
     
     #print('Slow')
